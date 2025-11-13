@@ -1,7 +1,11 @@
+using Brain__.Services;
+using Brain__.Services.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ICppCompilerService, CppCompilerService>();
 
 var app = builder.Build();
 
