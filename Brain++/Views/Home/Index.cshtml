@@ -1,8 +1,103 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "C++ Compiler Test";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5">
+    <h1 class="mb-4">Brain++ C++ Compiler</h1>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="cppCode" class="form-label">C++ Code</label>
+                <textarea id="cppCode" class="form-control" rows="15" placeholder="Enter your C++ code here...">#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello, World!" << endl;
+    return 0;
+}</textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="cppInput" class="form-label">Program Input (optional)</label>
+                <textarea id="cppInput" class="form-control" rows="3" placeholder="Enter input for your program..."></textarea>
+            </div>
+            
+            <button id="compileBtn" class="btn btn-primary">
+                <i class="bi bi-play-fill"></i> Compile & Run
+            </button>
+            <button id="clearBtn" class="btn btn-secondary">Clear</button>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Output</label>
+                <div id="output" class="border rounded p-3 bg-dark text-light" style="min-height: 300px; font-family: monospace; white-space: pre-wrap; overflow-y: auto;"></div>
+            </div>
+            
+            <div id="errorSection" class="mb-3" style="display: none;">
+                <label class="form-label text-danger">Errors</label>
+                <div id="error" class="border border-danger rounded p-3 bg-light" style="min-height: 100px; font-family: monospace; white-space: pre-wrap; color: red; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('compileBtn').addEventListener('click', async () => {
+            const code = document.getElementById('cppCode').value;
+            const input = document.getElementById('cppInput').value;
+            const outputDiv = document.getElementById('output');
+            const errorDiv = document.getElementById('error');
+            const errorSection = document.getElementById('errorSection');
+            const compileBtn = document.getElementById('compileBtn');
+            
+            // Clear previous output
+            outputDiv.textContent = 'Compiling and running...';
+            errorDiv.textContent = '';
+            errorSection.style.display = 'none';
+            compileBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/Home/CompileCpp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code, input })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    outputDiv.textContent = result.output || '(Program completed successfully with no output)';
+                    outputDiv.className = 'border rounded p-3 bg-dark text-success';
+                } else {
+                    outputDiv.textContent = result.output || '(No output)';
+                    outputDiv.className = 'border rounded p-3 bg-dark text-light';
+                    
+                    if (result.error) {
+                        errorDiv.textContent = result.error;
+                        errorSection.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                outputDiv.textContent = 'Error communicating with server';
+                errorDiv.textContent = error.message;
+                errorSection.style.display = 'block';
+                outputDiv.className = 'border rounded p-3 bg-dark text-danger';
+            } finally {
+                compileBtn.disabled = false;
+            }
+        });
+        
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('cppCode').value = '';
+            document.getElementById('cppInput').value = '';
+            document.getElementById('output').textContent = '';
+            document.getElementById('error').textContent = '';
+            document.getElementById('errorSection').style.display = 'none';
+        });
+    </script>
+}
