@@ -31,6 +31,3 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Brain++.dll"]
-````````
-
-docker build --progress=plain -t brainplusplus:latest -f Brain++/Dockerfile . 2>&1 | Select-String -Pattern "error|Error|ERROR" -Context 2
