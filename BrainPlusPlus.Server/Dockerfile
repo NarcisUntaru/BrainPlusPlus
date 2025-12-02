@@ -1,40 +1,41 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+# Stage 1: Build React frontend
+FROM node:20-alpine AS frontend-build
+WORKDIR /src/frontend
 
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+COPY brainplusplus.client/package*.json ./
+RUN npm install
 
+COPY brainplusplus.client/ ./
+RUN npm run build
 
-# This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS with-node
-RUN apt-get update
-RUN apt-get install curl
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
-RUN apt-get -y install nodejs
-
-
-FROM with-node AS build
-ARG BUILD_CONFIGURATION=Release
+# Stage 2: Build .NET backend
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS backend-build
 WORKDIR /src
-COPY ["BrainPlusPlus.Server/BrainPlusPlus.Server.csproj", "BrainPlusPlus.Server/"]
-COPY ["brainplusplus.client/brainplusplus.client.esproj", "brainplusplus.client/"]
-COPY ["brainplusplus.client/package.json", "brainplusplus.client/"]
-COPY ["brainplusplus.client/package-lock.json", "brainplusplus.client/"]
-RUN dotnet restore "./BrainPlusPlus.Server/BrainPlusPlus.Server.csproj"
-COPY . .
-WORKDIR "/src/BrainPlusPlus.Server"
-RUN dotnet build "./BrainPlusPlus.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./BrainPlusPlus.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+COPY BrainPlusPlus.Server/*.csproj ./BrainPlusPlus.Server/
+RUN dotnet restore ./BrainPlusPlus.Server/BrainPlusPlus.Server.csproj
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
-FROM base AS final
+COPY BrainPlusPlus.Server/ ./BrainPlusPlus.Server/
+
+COPY --from=frontend-build /src/frontend/dist ./BrainPlusPlus.Server/wwwroot
+
+WORKDIR /src/BrainPlusPlus.Server
+RUN dotnet publish -c Release -o /app/publish
+
+# Stage 3: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
-COPY --from=publish /app/publish .
+
+RUN apt-get update && apt-get install -y \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=backend-build /app/publish .
+
+EXPOSE 8080
+
+# Set environment variables
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
 ENTRYPOINT ["dotnet", "BrainPlusPlus.Server.dll"]
