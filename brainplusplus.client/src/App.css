@@ -40,3 +40,108 @@
 .read-the-docs {
   color: #888;
 }
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1 {
+  color: #646cff;
+  margin-bottom: 2rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #888;
+}
+
+.editor-section,
+.input-section,
+.output-section {
+  margin-bottom: 1.5rem;
+}
+
+.code-editor,
+.input-box,
+.output-box {
+  width: 100%;
+  min-height: 200px;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  resize: vertical;
+}
+
+.code-editor {
+  min-height: 300px;
+}
+
+.input-box {
+  min-height: 100px;
+}
+
+.output-box {
+  min-height: 150px;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.output-box.success {
+  border-color: #4caf50;
+  background-color: #1a2e1a;
+}
+
+.output-box.error {
+  border-color: #f44336;
+  background-color: #2e1a1a;
+}
+
+.run-button {
+  width: 100%;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: background-color 0.3s;
+}
+
+.run-button:hover:not(:disabled) {
+  background-color: #535bf2;
+}
+
+.run-button:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: light) {
+  .code-editor,
+  .input-box,
+  .output-box {
+    background-color: #f5f5f5;
+    color: #333;
+    border-color: #ddd;
+  }
+
+  .output-box.success {
+    background-color: #e8f5e9;
+    border-color: #4caf50;
+  }
+
+  .output-box.error {
+    background-color: #ffebee;
+    border-color: #f44336;
+  }
+}
