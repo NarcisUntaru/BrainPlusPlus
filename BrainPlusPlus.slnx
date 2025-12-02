@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="brainplusplus.client/brainplusplus.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="BrainPlusPlus.Server/BrainPlusPlus.Server.csproj" />
+</Solution>
