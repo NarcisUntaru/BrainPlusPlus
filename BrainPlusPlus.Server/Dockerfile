@@ -21,6 +21,8 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["BrainPlusPlus.Server/BrainPlusPlus.Server.csproj", "BrainPlusPlus.Server/"]
 COPY ["brainplusplus.client/brainplusplus.client.esproj", "brainplusplus.client/"]
+COPY ["brainplusplus.client/package.json", "brainplusplus.client/"]
+COPY ["brainplusplus.client/package-lock.json", "brainplusplus.client/"]
 RUN dotnet restore "./BrainPlusPlus.Server/BrainPlusPlus.Server.csproj"
 COPY . .
 WORKDIR "/src/BrainPlusPlus.Server"
